@@ -1,0 +1,29 @@
+export type LinkMethod = 'symlink' | 'junction' | 'copy';
+export type LinkStatus = 'linked' | 'broken' | 'missing' | 'conflict';
+
+export interface Target {
+  name: string;
+  path: string;
+  method: LinkMethod;
+}
+
+export interface Config {
+  source: string;
+  targets: Target[];
+}
+
+export interface TargetStatus {
+  name: string;
+  status: LinkStatus;
+  method: LinkMethod;
+  targetPath: string;
+  sourcePath: string;
+  detail?: string;
+}
+
+export interface LinkResult {
+  name: string;
+  success: boolean;
+  action: 'created' | 'skipped' | 'replaced' | 'error';
+  detail?: string;
+}
