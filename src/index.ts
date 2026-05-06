@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('uniskill')
   .description('Unified AI Agent Skill manager — sync skills across multiple agents')
-  .version(pkg.version, '-v, --version');
+  .version(pkg.version);
 
 program
   .command('init')
