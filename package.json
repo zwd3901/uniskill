@@ -23,6 +23,10 @@
     "skill-management"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zwd3901/uniskill.git"
+  },
   "engines": {
     "node": ">=18"
   },
