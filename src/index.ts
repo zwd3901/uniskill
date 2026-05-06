@@ -7,12 +7,14 @@ import { unlinkCommand } from './commands/unlink';
 import { statusCommand } from './commands/status';
 import { watchCommand } from './commands/watch';
 
+import pkg from '../package.json';
+
 const program = new Command();
 
 program
   .name('uniskill')
   .description('Unified AI Agent Skill manager — sync skills across multiple agents')
-  .version('0.1.0');
+  .version(pkg.version, '-v, --version');
 
 program
   .command('init')
