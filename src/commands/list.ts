@@ -8,6 +8,7 @@ export async function listCommand(cwd: string): Promise<void> {
 
   const sourceDir = path.resolve(cwd, config.source);
 
+  // Read all skill subdirectories from source
   let skillDirs: string[];
   try {
     const entries = await fs.readdir(sourceDir, { withFileTypes: true });
@@ -28,37 +29,47 @@ export async function listCommand(cwd: string): Promise<void> {
   console.log(`📂 源目录: ${sourceDir}`);
   console.log('');
 
-  for (const skillName of skillDirs) {
-    const linkedTargets: string[] = [];
+  // For symlink/junction: check if the entire target directory links to sourceDir
+  // For copy: check each skill directory existence inside target
+  // Precompute which targets are linked to the source
+  const linkedTargetNames: string[] = [];
 
-    for (const target of config.targets) {
-      const targetPath = path.resolve(expandHome(target.path));
-      const skillDir = path.join(targetPath, skillName);
+  for (const target of config.targets) {
+    const targetPath = path.resolve(expandHome(target.path));
+    let isLinked = false;
 
-      let isLinked = false;
-      if (target.method === 'copy') {
-        try {
-          const stat = await fs.stat(skillDir);
-          isLinked = stat.isDirectory();
-        } catch {
-          // Directory doesn't exist — not linked
-        }
-      } else {
-        try {
-          const linkTarget = await fs.readlink(skillDir);
-          const expectedSource = path.resolve(sourceDir, skillName);
-          isLinked = path.resolve(linkTarget) === expectedSource;
-        } catch {
-          // Not linked to this target
-        }
+    if (target.method === 'copy') {
+      // For copy, the target IS the source copy — all skills are present
+      try {
+        await fs.access(targetPath);
+        isLinked = true;
+      } catch {
+        // Target doesn't exist
       }
-
-      if (isLinked) linkedTargets.push(target.name);
+    } else {
+      // For symlink/junction: check if targetPath points to sourceDir
+      try {
+        const linkTarget = await fs.readlink(targetPath);
+        isLinked = path.resolve(linkTarget) === path.resolve(sourceDir);
+      } catch {
+        // Not a symlink
+      }
     }
 
-    const targetList = linkedTargets.length > 0
-      ? linkedTargets.join(', ')
-      : '(未链接)';
+    if (isLinked) linkedTargetNames.push(target.name);
+  }
+
+  const linkedStr = linkedTargetNames.length > 0 ? linkedTargetNames.join(', ') : null;
+
+  for (const skillName of skillDirs) {
+    const targetList = linkedStr ?? '(未链接)';
     console.log(`  ${skillName}/  → ${targetList}`);
+  }
+
+  console.log('');
+  if (linkedStr) {
+    console.log(`✅ 已链接 ${linkedTargetNames.length} 个 target: ${linkedStr}`);
+  } else {
+    console.log('⚠️ 未检测到已链接的 target');
   }
 }
