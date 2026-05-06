@@ -2,12 +2,14 @@
 
 > Unified AI Agent Skill manager — symlink skills across multiple AI coding agents from one source directory.
 
+**English** | [简体中文](./README.zh-CN.md)
+
 **One source directory, multiple agents. Change once, sync everywhere.**
 
 ## Install
 
 ```bash
-npm install -g uniskill
+npm install -g @zhawk/uniskill
 ```
 
 ## Quick Start
