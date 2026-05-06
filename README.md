@@ -6,6 +6,17 @@
 
 **One source directory, multiple agents. Change once, sync everywhere.**
 
+> **Already have a skills directory?** Run `uniskill` in the **parent directory** of your existing skills folder.
+>
+> ```
+> my-project/               ← cd here, then run: uniskill init → uniskill link
+> ├── skills/               ← your existing skills directory (set source: ./skills in config)
+> │   ├── my-skill/
+> │   └── another-skill/
+> ```
+>
+> Just adjust `source` in `uniskill.yaml` to match your folder name, then run `uniskill link` — no need to create a new directory.
+
 ## Install
 
 ```bash

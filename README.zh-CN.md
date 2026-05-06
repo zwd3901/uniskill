@@ -6,6 +6,17 @@
 
 [English](./README.md) | **简体中文**
 
+> **已经有技能目录了？** 在已有技能的**父级目录**中执行 uniskill 命令。
+>
+> ```
+> my-project/               ← 在此目录执行: uniskill init → uniskill link
+> ├── skills/               ← 你已有的技能目录（配置中 source 设为 ./skills）
+> │   ├── my-skill/
+> │   └── another-skill/
+> ```
+>
+> 只需将 `uniskill.yaml` 中的 `source` 改为你的目录名，然后运行 `uniskill link` 即可 — 无需新建目录。
+
 ## 安装
 
 ```bash
