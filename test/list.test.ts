@@ -23,8 +23,14 @@ describe('list', () => {
     const agentDir = path.join(TEST_DIR, 'agents', 'cb', 'skills');
     const config = `source: ./skills\ntargets:\n  - name: cb\n    path: ${agentDir.replace(/\\/g, '/')}\n`;
     await fs.writeFile(path.join(TEST_DIR, 'uniskill.yaml'), config);
-    // Manually create target directory to simulate "linked" state
-    await fs.mkdir(agentDir, { recursive: true });
+
+    // Use createLink to create a real junction/symlink
+    const { createLink } = await import('../src/core/linker');
+    const result = await createLink(skillsDir, agentDir);
+    if (!result.success) {
+      // Fallback: manually create directory if link creation fails
+      await fs.mkdir(agentDir, { recursive: true });
+    }
 
     const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await listCommand(TEST_DIR);
