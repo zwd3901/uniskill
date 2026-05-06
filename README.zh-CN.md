@@ -54,6 +54,8 @@ uniskill status
 | `uniskill link --dry-run` | 预览将要执行的操作，不实际执行 |
 | `uniskill unlink` | 移除所有符号链接（不删除源文件） |
 | `uniskill status` | 查看每个 target 的链接状态 |
+| `uniskill list` | 列出所有技能及其关联的 target |
+| `uniskill watch` | 监听源目录变化，自动同步 |
 
 ## 配置说明
 

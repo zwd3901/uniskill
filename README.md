@@ -54,6 +54,8 @@ uniskill status
 | `uniskill link --dry-run` | Show what would be done without doing it |
 | `uniskill unlink` | Remove all symlinks (does not delete source files) |
 | `uniskill status` | Show link status for each target |
+| `uniskill list` | List all skills and which targets they're linked to |
+| `uniskill watch` | Watch source directory and auto-sync on changes |
 
 ## Configuration
 

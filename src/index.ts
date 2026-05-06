@@ -2,8 +2,10 @@
 import { Command } from 'commander';
 import { initCommand } from './commands/init';
 import { linkCommand } from './commands/link';
+import { listCommand } from './commands/list';
 import { unlinkCommand } from './commands/unlink';
 import { statusCommand } from './commands/status';
+import { watchCommand } from './commands/watch';
 
 const program = new Command();
 
@@ -50,6 +52,26 @@ program
   .description('Check link status for all targets')
   .action(() => {
     statusCommand(process.cwd()).catch((err) => {
+      console.error('错误:', (err as Error).message);
+      process.exit(1);
+    });
+  });
+
+program
+  .command('list')
+  .description('List all skills and their linked targets')
+  .action(() => {
+    listCommand(process.cwd()).catch((err) => {
+      console.error('错误:', (err as Error).message);
+      process.exit(1);
+    });
+  });
+
+program
+  .command('watch')
+  .description('Watch source directory for changes and auto-sync')
+  .action(() => {
+    watchCommand(process.cwd()).catch((err) => {
       console.error('错误:', (err as Error).message);
       process.exit(1);
     });
