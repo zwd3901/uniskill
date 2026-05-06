@@ -1,6 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { LinkMethod, LinkStatus, LinkResult } from '../types';
+import { LinkStatus, LinkResult } from '../types';
+
+function getDefaultMethod(): 'junction' | 'symlink' {
+  return process.platform === 'win32' ? 'junction' : 'symlink';
+}
 
 async function readLinkTarget(targetPath: string): Promise<string | null> {
   try {
@@ -13,7 +17,6 @@ async function readLinkTarget(targetPath: string): Promise<string | null> {
 export async function createLink(
   source: string,
   target: string,
-  method: LinkMethod,
 ): Promise<LinkResult> {
   const resolvedSource = path.resolve(source);
 
@@ -54,19 +57,11 @@ export async function createLink(
     }
   }
 
-  // Create the link
+  // Create the link — platform adaptive
+  const method = getDefaultMethod();
+  const linkType = method === 'junction' ? 'junction' as any : 'dir';
   try {
-    switch (method) {
-      case 'symlink':
-        await fs.symlink(resolvedSource, target, 'dir');
-        break;
-      case 'junction':
-        await fs.symlink(resolvedSource, target, 'junction' as any);
-        break;
-      case 'copy':
-        await fs.cp(resolvedSource, target, { recursive: true });
-        break;
-    }
+    await fs.symlink(resolvedSource, target, linkType);
     const action = existingLink !== null ? 'replaced' : 'created';
     return { name: path.basename(target), success: true, action };
   } catch (err) {
@@ -88,7 +83,6 @@ export async function checkStatus(
   const linkTarget = await readLinkTarget(targetPath);
 
   if (linkTarget === null) {
-    // Not a symlink — check if a real file/directory exists (conflict)
     try {
       await fs.access(targetPath);
       return 'conflict';
@@ -97,7 +91,6 @@ export async function checkStatus(
     }
   }
 
-  // It's a symlink — check source
   try {
     await fs.access(resolvedSource);
   } catch {
@@ -107,16 +100,12 @@ export async function checkStatus(
   return 'linked';
 }
 
-export async function removeLink(target: string, method: LinkMethod): Promise<void> {
+export async function removeLink(target: string): Promise<void> {
   try {
     await fs.access(target);
   } catch {
     return; // Already gone — skip
   }
 
-  if (method === 'copy') {
-    await fs.rm(target, { recursive: true, force: true });
-  } else {
-    await fs.unlink(target);
-  }
+  await fs.unlink(target);
 }

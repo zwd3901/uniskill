@@ -2,9 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import yaml from 'js-yaml';
-import { Config, LinkMethod, Target } from '../types';
-
-const VALID_METHODS: LinkMethod[] = ['symlink', 'junction', 'copy'];
+import { Config } from '../types';
 
 const TEMPLATE = `# uniskill configuration — central skill source and agent targets
 # Source: directory containing your skill subdirectories
@@ -14,11 +12,9 @@ source: ./skills
 targets:
   - name: codebuddy
     path: ~/.codebuddy/skills
-    method: symlink
 
   - name: claude
     path: ~/.claude/skills
-    method: symlink
 `;
 
 export function generateTemplate(): string {
@@ -49,8 +45,9 @@ export function validateConfig(config: unknown): asserts config is Config {
     if (typeof target.path !== 'string' || target.path.trim() === '') {
       throw new Error(`配置错误：target "${target.name}" 的 path 不能为空`);
     }
-    if (!VALID_METHODS.includes(target.method as LinkMethod)) {
-      throw new Error(`配置错误：target "${target.name}" 的 method 必须是 ${VALID_METHODS.join(', ')} 之一`);
+    // method 字段已废弃，允许存在但忽略，保证向后兼容
+    if (target.method !== undefined && typeof target.method !== 'string') {
+      throw new Error(`配置错误：target "${target.name}" 的 method 字段格式无效`);
     }
   }
 }

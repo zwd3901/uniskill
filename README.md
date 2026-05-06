@@ -49,7 +49,7 @@ uniskill status
 | Command | Description |
 |---------|-------------|
 | `uniskill init` | Generate `uniskill.yaml` template |
-| `uniskill link` | Create symlinks (or junctions/copies) for all targets |
+| `uniskill link` | Create symlinks/junctions for all targets |
 | `uniskill link --target <name>` | Only link a specific target |
 | `uniskill link --dry-run` | Show what would be done without doing it |
 | `uniskill unlink` | Remove all symlinks (does not delete source files) |
@@ -66,19 +66,21 @@ source: ./skills
 targets:
   - name: codebuddy
     path: ~/.codebuddy/skills
-    method: symlink
   - name: claude
     path: ~/.claude/skills
-    method: symlink
 ```
 
-### Methods
+### Link Method
 
-| Method | Platform | Description |
-|--------|----------|-------------|
-| `symlink` | Windows / macOS / Linux | Symbolic link (Windows may need Developer Mode) |
-| `junction` | Windows only | Directory junction, no admin needed |
-| `copy` | All | Direct file copy (loses sync benefit) |
+The tool automatically selects the appropriate link method for each platform:
+
+| Platform | Method | Note |
+|----------|--------|------|
+| Windows | Junction | Directory junction, no admin or Developer Mode needed |
+| macOS | Symbolic Link | Native POSIX symlink |
+| Linux | Symbolic Link | Native POSIX symlink |
+
+No `method` configuration needed — the tool handles this automatically.
 
 ## Supported Agents
 

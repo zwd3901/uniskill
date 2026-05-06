@@ -28,7 +28,7 @@ export async function unlinkCommand(cwd: string, options: UnlinkOptions): Promis
       continue;
     }
 
-    await removeLink(targetPath, target.method);
+    await removeLink(targetPath);
     console.log(`🗑️ ${target.name}: 链接已移除`);
   }
 }

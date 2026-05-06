@@ -20,16 +20,17 @@ describe('config', () => {
       const yaml = generateTemplate();
       expect(yaml).toContain('source:');
       expect(yaml).toContain('targets:');
-      expect(yaml).toContain('method: symlink');
+      // Template should NOT contain method anymore
+      expect(yaml).not.toContain('method:');
     });
   });
 
   describe('validateConfig', () => {
-    it('should validate a correct config', () => {
+    it('should validate a correct config without method', () => {
       const config = {
         source: './skills',
         targets: [
-          { name: 'codebuddy', path: '~/.codebuddy/skills', method: 'symlink' as const },
+          { name: 'codebuddy', path: '~/.codebuddy/skills' },
         ],
       };
       expect(() => validateConfig(config)).not.toThrow();
@@ -40,24 +41,16 @@ describe('config', () => {
       expect(() => validateConfig(config)).toThrow(/至少一个 target/i);
     });
 
-    it('should throw if method is invalid', () => {
-      const config = {
-        source: './skills',
-        targets: [{ name: 'test', path: '/tmp', method: 'invalid' }],
-      };
-      expect(() => validateConfig(config)).toThrow(/method/i);
-    });
-
     it('should throw if source is empty', () => {
-      const config = { source: '', targets: [{ name: 'test', path: '/tmp', method: 'symlink' as const }] };
+      const config = { source: '', targets: [{ name: 'test', path: '/tmp' }] };
       expect(() => validateConfig(config)).toThrow(/source/i);
     });
   });
 
   describe('loadConfig', () => {
-    it('should load a valid YAML config file', async () => {
+    it('should load a valid YAML config file without method', async () => {
       const configPath = path.join(TEST_DIR, 'uniskill.yaml');
-      await fs.writeFile(configPath, `source: ./skills\ntargets:\n  - name: test\n    path: /tmp/test\n    method: symlink\n`);
+      await fs.writeFile(configPath, `source: ./skills\ntargets:\n  - name: test\n    path: /tmp/test\n`);
       const config = await loadConfig(configPath);
       expect(config.source).toBe('./skills');
       expect(config.targets).toHaveLength(1);

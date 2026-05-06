@@ -27,7 +27,7 @@ describe('watch command', () => {
     await fs.mkdir(path.join(skillsDir, 'test-skill'), { recursive: true });
     await fs.writeFile(path.join(skillsDir, 'test-skill', 'SKILL.md'), '# test');
 
-    const config = `source: ./skills\ntargets:\n  - name: test\n    path: ${path.join(TEST_DIR, 'agent').replace(/\\/g, '/')}\n    method: copy\n`;
+    const config = `source: ./skills\ntargets:\n  - name: test\n    path: ${path.join(TEST_DIR, 'agent').replace(/\\/g, '/')}\n`;
     await fs.writeFile(path.join(TEST_DIR, 'uniskill.yaml'), config);
 
     const { watchCommand } = await import('../src/commands/watch');
@@ -45,7 +45,7 @@ describe('watch command', () => {
     await fs.writeFile(path.join(skillsDir, 'test-skill', 'SKILL.md'), '# test');
 
     const agentDir = path.join(TEST_DIR, 'agent', 'skills');
-    const config = `source: ./skills\ntargets:\n  - name: test\n    path: ${agentDir.replace(/\\/g, '/')}\n    method: copy\n`;
+    const config = `source: ./skills\ntargets:\n  - name: test\n    path: ${agentDir.replace(/\\/g, '/')}\n`;
     await fs.writeFile(path.join(TEST_DIR, 'uniskill.yaml'), config);
 
     const { watchCommand } = await import('../src/commands/watch');

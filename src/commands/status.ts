@@ -34,24 +34,23 @@ export async function statusCommand(cwd: string): Promise<void> {
     results.push({
       name: target.name,
       status,
-      method: target.method,
       targetPath,
       sourcePath: sourceDir,
     });
   }
 
-  // Print table
+  // Print table — no Method column
   const nameWidth = Math.max(...results.map((r) => r.name.length), 4);
-  const sep = '─'.repeat(Math.max(nameWidth + 40, 50));
+  const sep = '─'.repeat(Math.max(nameWidth + 28, 50));
 
   console.log(`┌${sep}┐`);
-  console.log(`│ ${'Target'.padEnd(nameWidth)} │ Method       │ Status                     │`);
+  console.log(`│ ${'Target'.padEnd(nameWidth)} │ Status                     │`);
   console.log(`├${sep}┤`);
 
   for (const r of results) {
     const icon = STATUS_ICONS[r.status] || '❓';
     const label = STATUS_LABELS[r.status] || r.status;
-    console.log(`│ ${r.name.padEnd(nameWidth)} │ ${r.method.padEnd(12)} │ ${icon} ${label.padEnd(20)} │`);
+    console.log(`│ ${r.name.padEnd(nameWidth)} │ ${icon} ${label.padEnd(20)} │`);
   }
 
   console.log(`└${sep}┘`);

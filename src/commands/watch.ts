@@ -12,7 +12,7 @@ export async function watchCommand(cwd: string): Promise<Watcher> {
   console.log('🔄 执行初始链接...');
   for (const target of config.targets) {
     const targetPath = path.resolve(expandHome(target.path));
-    const result = await createLink(sourceDir, targetPath, target.method);
+    const result = await createLink(sourceDir, targetPath);
     const icon = result.success ? '✅' : '❌';
     console.log(`  ${icon} ${target.name}: ${result.action}`);
   }
@@ -24,7 +24,7 @@ export async function watchCommand(cwd: string): Promise<Watcher> {
     console.log('🔄 检测到变化，自动同步...');
     for (const target of config.targets) {
       const targetPath = path.resolve(expandHome(target.path));
-      await createLink(sourceDir, targetPath, target.method);
+      await createLink(sourceDir, targetPath);
     }
     console.log('✅ 同步完成');
   });

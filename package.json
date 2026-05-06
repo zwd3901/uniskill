@@ -1,6 +1,6 @@
 {
   "name": "@zhawk/uniskill",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Unified AI Agent Skill manager — symlink skills across multiple agents from one source directory",
   "bin": {
     "uniskill": "dist/index.js"

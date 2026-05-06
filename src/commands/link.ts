@@ -29,17 +29,11 @@ export async function linkCommand(cwd: string, options: LinkOptions): Promise<vo
     const targetPath = path.resolve(expandHome(target.path));
 
     if (options.dryRun) {
-      let methodLabel = '';
-      switch (target.method) {
-        case 'symlink': methodLabel = '🔗 符号链接'; break;
-        case 'junction': methodLabel = '🔗 目录联结'; break;
-        case 'copy': methodLabel = '📂 复制'; break;
-      }
-      console.log(`[DRY-RUN] ${target.name}: ${methodLabel} ${sourceDir} → ${targetPath}`);
+      console.log(`[DRY-RUN] ${target.name}: 🔗 ${sourceDir} → ${targetPath}`);
       continue;
     }
 
-    const result: LinkResult = await createLink(sourceDir, targetPath, target.method);
+    const result: LinkResult = await createLink(sourceDir, targetPath);
 
     const icon = result.success ? (result.action === 'skipped' ? '⏭️' : '✅') : '❌';
     let msg = `${icon} ${target.name}: `;

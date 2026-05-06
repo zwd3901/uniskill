@@ -21,12 +21,10 @@ describe('list', () => {
     await fs.writeFile(path.join(skillsDir, 'my-skill', 'SKILL.md'), '# skill1');
 
     const agentDir = path.join(TEST_DIR, 'agents', 'cb', 'skills');
-    const config = `source: ./skills\ntargets:\n  - name: cb\n    path: ${agentDir.replace(/\\/g, '/')}\n    method: copy\n`;
+    const config = `source: ./skills\ntargets:\n  - name: cb\n    path: ${agentDir.replace(/\\/g, '/')}\n`;
     await fs.writeFile(path.join(TEST_DIR, 'uniskill.yaml'), config);
-    await fs.mkdir(path.dirname(agentDir), { recursive: true });
-
-    const { createLink } = await import('../src/core/linker');
-    await createLink(skillsDir, agentDir, 'copy');
+    // Manually create target directory to simulate "linked" state
+    await fs.mkdir(agentDir, { recursive: true });
 
     const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await listCommand(TEST_DIR);
@@ -38,7 +36,7 @@ describe('list', () => {
 
   it('should handle empty skills directory', async () => {
     await fs.mkdir(path.join(TEST_DIR, 'skills'), { recursive: true });
-    const config = `source: ./skills\ntargets:\n  - name: test\n    path: /tmp/nonexistent\n    method: symlink\n`;
+    const config = `source: ./skills\ntargets:\n  - name: test\n    path: /tmp/nonexistent\n`;
     await fs.writeFile(path.join(TEST_DIR, 'uniskill.yaml'), config);
 
     const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -49,7 +47,7 @@ describe('list', () => {
   });
 
   it('should handle source directory not found', async () => {
-    const config = `source: ./nonexistent\ntargets:\n  - name: test\n    path: /tmp/test\n    method: symlink\n`;
+    const config = `source: ./nonexistent\ntargets:\n  - name: test\n    path: /tmp/test\n`;
     await fs.writeFile(path.join(TEST_DIR, 'uniskill.yaml'), config);
 
     const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -62,7 +60,7 @@ describe('list', () => {
   it('should show unlinked for skills not linked to any target', async () => {
     await fs.mkdir(path.join(TEST_DIR, 'skills', 'orphan-skill'), { recursive: true });
     await fs.writeFile(path.join(TEST_DIR, 'skills', 'orphan-skill', 'SKILL.md'), '# alone');
-    const config = `source: ./skills\ntargets:\n  - name: cb\n    path: ${path.join(TEST_DIR, 'agents/cb/skills').replace(/\\/g, '/')}\n    method: symlink\n`;
+    const config = `source: ./skills\ntargets:\n  - name: cb\n    path: ${path.join(TEST_DIR, 'agents/cb/skills').replace(/\\/g, '/')}\n`;
     await fs.writeFile(path.join(TEST_DIR, 'uniskill.yaml'), config);
 
     const spy = vi.spyOn(console, 'log').mockImplementation(() => {});

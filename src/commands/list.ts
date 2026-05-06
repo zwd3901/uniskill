@@ -33,20 +33,11 @@ export async function listCommand(cwd: string): Promise<void> {
     const targetPath = path.resolve(expandHome(target.path));
     let isLinked = false;
 
-    if (target.method === 'copy') {
-      try {
-        await fs.access(targetPath);
-        isLinked = true;
-      } catch {
-        // Target doesn't exist
-      }
-    } else {
-      try {
-        const linkTarget = await fs.readlink(targetPath);
-        isLinked = path.resolve(linkTarget) === path.resolve(sourceDir);
-      } catch {
-        // Not a symlink
-      }
+    try {
+      const linkTarget = await fs.readlink(targetPath);
+      isLinked = path.resolve(linkTarget) === path.resolve(sourceDir);
+    } catch {
+      // Not a symlink/junction
     }
 
     if (isLinked) linkedTargetNames.push(target.name);
