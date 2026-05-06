@@ -93,3 +93,7 @@ Any AI coding tool that reads skills from a directory. Common examples:
 ## License
 
 MIT
+
+---
+
+> This project's code is generated with the assistance of AI (CodeBuddy + Claude Code).

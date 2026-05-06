@@ -49,7 +49,7 @@ uniskill status
 | 命令 | 说明 |
 |------|------|
 | `uniskill init` | 生成 `uniskill.yaml` 配置模板 |
-| `uniskill link` | 为所有 target 创建符号链接（或目录联结/复制） |
+| `uniskill link` | 为所有 target 创建符号链接或目录联结 |
 | `uniskill link --target <name>` | 仅链接指定的 target |
 | `uniskill link --dry-run` | 预览将要执行的操作，不实际执行 |
 | `uniskill unlink` | 移除所有符号链接（不删除源文件） |
@@ -66,19 +66,21 @@ source: ./skills
 targets:
   - name: codebuddy
     path: ~/.codebuddy/skills
-    method: symlink
   - name: claude
     path: ~/.claude/skills
-    method: symlink
 ```
 
-### 同步方式
+### 链接方式
 
-| 方式 | 平台 | 说明 |
+工具会根据操作系统自动选择适合的链接方式：
+
+| 平台 | 方式 | 说明 |
 |------|------|------|
-| `symlink` | Windows / macOS / Linux | 符号链接（Windows 可能需要开发者模式） |
-| `junction` | Windows 仅 | 目录联结，无需管理员权限 |
-| `copy` | 全平台 | 直接复制文件（失去同步优势） |
+| Windows | 目录联结 (Junction) | 无需管理员权限或开发者模式 |
+| macOS | 符号链接 (Symbolic Link) | 原生 POSIX 符号链接 |
+| Linux | 符号链接 (Symbolic Link) | 原生 POSIX 符号链接 |
+
+无需配置 `method` 字段 — 工具自动处理。
 
 ## 支持的 Agent
 
@@ -91,3 +93,7 @@ targets:
 ## 开源协议
 
 MIT
+
+---
+
+> 本项目代码由 AI（CodeBuddy + Claude Code）辅助完成。
