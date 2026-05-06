@@ -1,10 +1,8 @@
-export type LinkMethod = 'symlink' | 'junction' | 'copy';
 export type LinkStatus = 'linked' | 'broken' | 'missing' | 'conflict';
 
 export interface Target {
   name: string;
   path: string;
-  method: LinkMethod;
 }
 
 export interface Config {
@@ -15,7 +13,6 @@ export interface Config {
 export interface TargetStatus {
   name: string;
   status: LinkStatus;
-  method: LinkMethod;
   targetPath: string;
   sourcePath: string;
   detail?: string;
