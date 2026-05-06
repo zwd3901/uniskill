@@ -17,20 +17,15 @@ export async function listCommand(cwd: string): Promise<void> {
       .map((e) => e.name)
       .sort();
   } catch {
-    console.log(`源目录不存在: ${sourceDir}`);
+    console.log(`📂 源目录不存在: ${sourceDir}`);
     return;
   }
 
   if (skillDirs.length === 0) {
-    console.log(`源目录中没有技能: ${sourceDir}`);
+    console.log(`📂 源目录中没有技能: ${sourceDir}`);
     return;
   }
 
-  console.log(`📂 源目录: ${sourceDir}`);
-  console.log('');
-
-  // For symlink/junction: check if the entire target directory links to sourceDir
-  // For copy: check each skill directory existence inside target
   // Precompute which targets are linked to the source
   const linkedTargetNames: string[] = [];
 
@@ -39,7 +34,6 @@ export async function listCommand(cwd: string): Promise<void> {
     let isLinked = false;
 
     if (target.method === 'copy') {
-      // For copy, the target IS the source copy — all skills are present
       try {
         await fs.access(targetPath);
         isLinked = true;
@@ -47,7 +41,6 @@ export async function listCommand(cwd: string): Promise<void> {
         // Target doesn't exist
       }
     } else {
-      // For symlink/junction: check if targetPath points to sourceDir
       try {
         const linkTarget = await fs.readlink(targetPath);
         isLinked = path.resolve(linkTarget) === path.resolve(sourceDir);
@@ -59,17 +52,46 @@ export async function listCommand(cwd: string): Promise<void> {
     if (isLinked) linkedTargetNames.push(target.name);
   }
 
-  const linkedStr = linkedTargetNames.length > 0 ? linkedTargetNames.join(', ') : null;
-
-  for (const skillName of skillDirs) {
-    const targetList = linkedStr ?? '(未链接)';
-    console.log(`  ${skillName}/  → ${targetList}`);
+  if (linkedTargetNames.length === 0) {
+    console.log(`📂 源目录: ${sourceDir}`);
+    console.log(`⚠️ 所有技能均未链接到任何 target`);
+    return;
   }
 
+  const targets = linkedTargetNames;
+
+  // Column widths
+  const skillCol = Math.max(...skillDirs.map((s) => s.length + 1), 6);
+  const targetCol = 10; // fixed width per target column
+  const iconCol = 6;    // width for ✅ / ❌ padding
+
+  // Header row: Skill | target1 | target2 | ...
+  const headerCells = ['Skill'.padEnd(skillCol), ...targets.map((t) => t.padEnd(targetCol))];
+  const header = `│ ${headerCells.join(' │ ')} │`;
+
+  // Separator
+  const colWidths = [skillCol + 2, ...targets.map(() => targetCol + 2)];
+  const sep = colWidths.map((w) => '─'.repeat(w)).join('┬');
+
+  const topSep = `┌${sep}┐`;
+  const midSep = `├${sep}┤`;
+  const botSep = `└${sep}┘`;
+
+  console.log(`📂 源目录: ${sourceDir}`);
+  console.log(`🎯 ${targets.length} 个 target`);
   console.log('');
-  if (linkedStr) {
-    console.log(`✅ 已链接 ${linkedTargetNames.length} 个 target: ${linkedStr}`);
-  } else {
-    console.log('⚠️ 未检测到已链接的 target');
+
+  // Table header
+  console.log(topSep);
+  console.log(header);
+  console.log(midSep);
+
+  // Table rows — all skills linked to all targets equally
+  for (const skillName of skillDirs) {
+    const cells = [(skillName + '/').padEnd(skillCol), ...targets.map(() => '✅'.padEnd(targetCol))];
+    console.log(`│ ${cells.join(' │ ')} │`);
   }
+
+  console.log(botSep);
+  console.log(`  共 ${skillDirs.length} 个技能`);
 }
