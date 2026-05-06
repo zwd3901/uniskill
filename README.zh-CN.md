@@ -96,4 +96,4 @@ MIT
 
 ---
 
-> 本项目代码由 AI（CodeBuddy + Claude Code）辅助完成。
+> 本项目代码由 AI（CodeBuddy + DeepSeek-V4-Flash）辅助完成。

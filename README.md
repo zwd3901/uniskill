@@ -96,4 +96,4 @@ MIT
 
 ---
 
-> This project's code is generated with the assistance of AI (CodeBuddy + Claude Code).
+> This project's code is generated with the assistance of AI (CodeBuddy + DeepSeek-V4-Flash).
