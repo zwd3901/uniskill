@@ -109,3 +109,60 @@ export async function removeLink(target: string): Promise<void> {
 
   await fs.unlink(target);
 }
+
+/**
+ * When the target path is occupied by a real file/directory (conflict),
+ * back it up (rename with a timestamp suffix) and create a new link from source.
+ * On failure to create the link, the backup is restored.
+ */
+export async function backupAndLink(
+  source: string,
+  target: string,
+): Promise<LinkResult & { backupPath?: string }> {
+  const resolvedSource = path.resolve(source);
+  const timestamp = Date.now();
+  const backupPath = `${target}.bak-${timestamp}`;
+  let didBackup = false;
+
+  // Validate source exists
+  try {
+    await fs.access(resolvedSource);
+  } catch {
+    return { name: path.basename(target), success: false, action: 'error', detail: `源目录不存在: ${resolvedSource}` };
+  }
+
+  // Create target parent directory
+  await fs.mkdir(path.dirname(target), { recursive: true });
+
+  // Check current state at target
+  const existingLink = await readLinkTarget(target);
+
+  if (existingLink !== null) {
+    if (path.resolve(existingLink) === resolvedSource) {
+      return { name: path.basename(target), success: true, action: 'skipped', detail: '已链接到相同源' };
+    }
+    // Points to different source — replace silently
+    await fs.unlink(target);
+  } else {
+    try {
+      await fs.lstat(target);
+      // Real file/directory exists — rename to backup
+      await fs.rename(target, backupPath);
+      didBackup = true;
+    } catch {
+      // Doesn't exist — proceed
+    }
+  }
+
+  // Create the link
+  const method = getDefaultMethod();
+  const linkType = method === 'junction' ? 'junction' as any : 'dir';
+  try {
+    await fs.symlink(resolvedSource, target, linkType);
+    const action = existingLink !== null ? 'replaced' : 'created';
+    return { name: path.basename(target), success: true, action, backupPath: didBackup ? backupPath : undefined };
+  } catch (err) {
+    if (didBackup) await fs.rename(backupPath, target).catch(() => {});
+    return { name: path.basename(target), success: false, action: 'error', detail: `创建链接失败: ${(err as Error).message}` };
+  }
+}

@@ -1,7 +1,7 @@
 import path from 'path';
 import { loadConfig, expandHome } from '../core/config';
 import { createLink } from '../core/linker';
-import { startWatch, Watcher } from '../core/watcher';
+import { createWatchManager, Watcher } from '../core/watcher';
 
 export async function watchCommand(cwd: string): Promise<Watcher> {
   const configPath = path.join(cwd, 'uniskill.yaml');
@@ -17,16 +17,12 @@ export async function watchCommand(cwd: string): Promise<Watcher> {
     console.log(`  ${icon} ${target.name}: ${result.action}`);
   }
 
-  console.log(`👀 开始监听: ${sourceDir}`);
-  console.log('   按 Ctrl+C 停止监听');
-
-  const watcher = await startWatch(sourceDir, async () => {
-    console.log('🔄 检测到变化，自动同步...');
-    for (const target of config.targets) {
-      const targetPath = path.resolve(expandHome(target.path));
-      await createLink(sourceDir, targetPath);
-    }
-    console.log('✅ 同步完成');
+  const watcher = await createWatchManager({
+    sourceDir,
+    targets: config.targets.map((t) => ({
+      name: t.name,
+      path: path.resolve(expandHome(t.path)),
+    })),
   });
 
   const cleanup = async () => {

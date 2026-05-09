@@ -10,3 +10,5 @@ vitest-out.json
 docs/
 .github/
 .gitnexus/
+.arts/
+.deepseek/

@@ -39,7 +39,7 @@ describe('watch command', () => {
     await watcher.close();
   });
 
-  it('should auto-sync when change event fires', async () => {
+  it('should log source changes via EventLogger', async () => {
     const skillsDir = path.join(TEST_DIR, 'skills');
     await fs.mkdir(path.join(skillsDir, 'test-skill'), { recursive: true });
     await fs.writeFile(path.join(skillsDir, 'test-skill', 'SKILL.md'), '# test');
@@ -53,17 +53,15 @@ describe('watch command', () => {
     const watcher = await watchCommand(TEST_DIR);
     spy.mockClear();
 
-    await fs.mkdir(path.join(skillsDir, 'new-skill'), { recursive: true });
-    await fs.writeFile(path.join(skillsDir, 'new-skill', 'SKILL.md'), '# new');
-
     const chokidar = await import('chokidar');
     const onHandler = (chokidar.watch as any).mock.results.at(-1).value.on;
     const addHandler = onHandler.mock.calls.find((c: any[]) => c[0] === 'add')[1];
-    addHandler('new-skill/SKILL.md');
+    addHandler(path.join(skillsDir, 'new-skill', 'SKILL.md'));
 
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 100));
 
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining('同步完成'));
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('新增'));
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('new-skill'));
     spy.mockRestore();
     await watcher.close();
   });
